@@ -1,5 +1,6 @@
 from django.db import models
-
+from django.contrib.auth.models import User
+from django.urls import reverse
 # Create your models here.
 
 from django.urls import reverse  # To generate URLS by reversing URL patterns
@@ -62,6 +63,8 @@ class Book(models.Model):
     def display_genre(self):
         """Creates a string for the Genre. This is required to display genre in Admin."""
         return ', '.join([genre.name for genre in self.genre.all()[:3]])
+    
+    
 
     display_genre.short_description = 'Genre'
 
@@ -139,3 +142,19 @@ class Author(models.Model):
     def __str__(self):
         """String for representing the Model object."""
         return f'{self.last_name}, {self.first_name}'
+
+
+# For users to use borrow books functionality
+
+# models.py
+from django.db import models
+from django.contrib.auth.models import User
+from django.urls import reverse
+
+class BorrowedBook(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    borrow_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} borrowed {self.book.title}"

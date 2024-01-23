@@ -261,3 +261,35 @@ class BookInstanceDelete(PermissionRequiredMixin, DeleteView):
     model = BookInstance
     success_url = reverse_lazy('bookinstances')
     permission_required = 'catalog.delete_bookinstance'
+
+
+
+# For users to use borrow books functionality
+
+# views.py
+# views.py
+
+from django.shortcuts import get_object_or_404, render
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from .models import Book, BorrowedBook
+
+@login_required
+def borrow_book(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+
+    if book.is_available(request.user):
+        # Mark the book as borrowed and update the availability
+        book.checked_out_by = request.user
+        book.save()
+
+        # Create a BorrowedBook instance to track the borrowing
+        BorrowedBook.objects.create(user=request.user, book=book)
+
+        # Redirect to a success page or the book list
+        return HttpResponseRedirect(reverse('books'))
+
+    # Handle the case where the book is not available
+    return render(request, 'book_not_available.html', {'book': book})
+

@@ -1,7 +1,18 @@
 from django.urls import path
 
+from .views import borrow_book 
+# extra line above
 from . import views
 
+
+# urlpatterns = [
+#     path('', views.index, name='index'),
+#     path('books/', views.BookListView.as_view(), name='books'),
+#     path('book/<int:pk>', views.BookDetailView.as_view(), name='book-detail'),
+#     path('authors/', views.AuthorListView.as_view(), name='authors'),
+#     path('author/<int:pk>',
+#          views.AuthorDetailView.as_view(), name='author-detail'),
+# ]
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -10,6 +21,9 @@ urlpatterns = [
     path('authors/', views.AuthorListView.as_view(), name='authors'),
     path('author/<int:pk>',
          views.AuthorDetailView.as_view(), name='author-detail'),
+    path('mybooks/', views.LoanedBooksByUserListView.as_view(), name='my-borrowed'),
+    path('borrow/<int:book_id>/', borrow_book, name='borrow_book'),
+    # ... other URL patterns
 ]
 
 
@@ -73,3 +87,17 @@ urlpatterns += [
     path('bookinstance/<uuid:pk>/delete/',
          views.BookInstanceDelete.as_view(), name='bookinstance-delete'),
 ]
+
+
+# # For users to use borrow books functionality
+
+# # urls.py
+# from django.urls import path
+# from .views import borrow_book
+
+# urlpatterns = [
+#     # ... your other URL patterns
+#     path('borrow/<int:book_id>/', borrow_book, name='borrow_book'),
+# ]
+
+

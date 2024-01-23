@@ -5,17 +5,33 @@
 
     {% if book_list %}
     <ul>
-
       {% for book in book_list %}
-      <li>
-        <a href="{{ book.get_absolute_url }}">{{ book.title }}</a> ({{book.author}})
-      </li>
+        <li>
+          <h2>{{ book.title }}</h2>
+          <p>{{ book.author }}</p>
+          <p>{{ book.description }}</p>
+
+          {% if book.borrowed_books.all %}
+            <p>This book is currently borrowed by:</p>
+            <ul>
+              {% for borrowed_book in book.borrowed_books.all %}
+                <li>{{ borrowed_book.user.username }} (Borrowed on {{ borrowed_book.borrow_date }})</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            {% if book.is_available %}
+              <a href="{% url 'borrow_book' book.id %}">Borrow this book</a>
+            {% else %}
+              <p>This book is currently not available for borrowing.</p>
+            {% endif %}
+          {% endif %}
+          
+          <!-- Link to the book's detail page -->
+          <a href="{{ book.get_absolute_url }}">Details</a>
+        </li>
       {% endfor %}
-
     </ul>
-
     {% else %}
       <p>There are no books in the library.</p>
-    {% endif %}       
+    {% endif %}
 {% endblock %}
-
