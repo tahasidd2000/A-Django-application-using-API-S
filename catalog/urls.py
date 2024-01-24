@@ -4,6 +4,14 @@ from . import views
 
 
 urlpatterns = [
+    # Other URL patterns
+    path('book/<uuid:pk>/borrow/', views.borrow_book, name='borrow-book'),
+    # Add other patterns as needed
+]
+
+
+
+urlpatterns += [
     path('', views.index, name='index'),
     path('books/', views.BookListView.as_view(), name='books'),
     path('book/<int:pk>', views.BookDetailView.as_view(), name='book-detail'),

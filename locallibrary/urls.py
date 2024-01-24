@@ -28,6 +28,8 @@ urlpatterns = [
 
 urlpatterns += [
     path('catalog/', include('catalog.urls')),
+    # path('book/<uuid:pk>/borrow/', views.borrow_book, name='borrow-book'),
+    # path('catalog/', include(('catalog.urls', 'catalog'), namespace='catalog')),
 ]
 
 

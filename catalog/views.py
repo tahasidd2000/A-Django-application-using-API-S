@@ -22,6 +22,7 @@ def index(request):
     return render(
         request,
         'index.html',
+        # 'catalog/index.html',
         context={'num_books': num_books, 'num_instances': num_instances,
                  'num_instances_available': num_instances_available, 'num_authors': num_authors,
                  'num_visits': num_visits},
@@ -261,3 +262,24 @@ class BookInstanceDelete(PermissionRequiredMixin, DeleteView):
     model = BookInstance
     success_url = reverse_lazy('bookinstances')
     permission_required = 'catalog.delete_bookinstance'
+
+
+
+# catalog/views.py
+
+from django.shortcuts import get_object_or_404, render
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from .models import BookInstance
+
+def borrow_book(request, pk):
+    # Your logic for borrowing a book
+    # ...
+
+    return HttpResponseRedirect(reverse('catalog:bookinstances'))
+
+def bookinstance_list(request):
+    # Your logic to get a list of book instances
+    book_instances = BookInstance.objects.all()
+
+    return render(request, 'catalog/bookinstance_list.html', {'book_instances': book_instances})
