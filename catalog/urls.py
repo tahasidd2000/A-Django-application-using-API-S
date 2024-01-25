@@ -2,11 +2,26 @@ from django.urls import path
 
 from . import views
 
+# catalog/urls.py
+# catalog/urls.py
+# catalog/urls.py
+
+from django.urls import path
+# from .views import login_api, login_view, hello_world
+
+# urlpatterns = [
+#     path('login-api/', login_api, name='login_api'),
+#     path('login-view/', login_view, name='login_view'),
+#     path('hello/', hello_world, name='hello_world'), 
+# ]
 
 
 urlpatterns = [
     # Other URL patterns
     path('book/<uuid:pk>/borrow/', views.borrow_book, name='borrow-book'),
+    path('login-api/', views.login_api, name='login_api'),
+    path('login-view/', views.login_view, name='login_view'),
+    path('hello/', views.hello_world, name='hello_world'), 
     # Add other patterns as needed
 ]
 
