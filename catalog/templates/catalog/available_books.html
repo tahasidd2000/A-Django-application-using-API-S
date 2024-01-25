@@ -1,0 +1,21 @@
+<!-- available_books.html -->
+
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <h1>Available Books</h1>
+
+    <ul>
+        {% for bookinst in available_books %}
+            <li>
+                <a href="{% url 'catalog:bookinstance-detail' bookinst.pk %}">{{bookinst.book.title}}</a>
+                ({{ bookinst.due_back }}) - 
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'borrow-book' bookinst.id %}">Borrow</a>
+                {% endif %}
+            </li>
+        {% empty %}
+            <li>There are no available books.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

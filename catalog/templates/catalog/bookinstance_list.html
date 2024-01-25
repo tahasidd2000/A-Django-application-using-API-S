@@ -4,13 +4,29 @@
     <h1>Book Copies in Library</h1>
 
     <ul>
-      {% for bookinst in bookinstance_list %}
-      <li class="{% if bookinst.is_overdue %}text-danger{% endif %}">
-        <a href="{% url 'bookinstance-detail' bookinst.pk %}">{{bookinst.book.title}}</a> ({{ bookinst.due_back }}) {% if user.is_staff %}- {{ bookinst.borrower }}{% endif %} {% if perms.catalog.can_mark_returned %}- <a href="{% url 'renew-book-librarian' bookinst.id %}">Renew</a>  {% endif %}
-      </li>
-      {% empty %}
-      <li>There are no book copies available.</li>
-      {% endfor %}
+        {% for bookinst in bookinstance_list %}
+            <li class="{% if bookinst.is_overdue %}text-danger{% endif %}">
+                <a href="{% url 'bookinstance-detail' bookinst.pk %}">{{bookinst.book.title}}</a>
+                ({{ bookinst.due_back }})
+                {% if user.is_staff %}- {{ bookinst.borrower }}{% endif %}
+                {% if perms.catalog.can_mark_returned %}- <a href="{% url 'renew-book-librarian' bookinst.id %}">Renew</a> {% endif %}
+                - {% if bookinst.is_available %}
+                    Available for Borrowing
+                    {% if user.is_authenticated and not bookinst.borrower %}
+                        - <a href="{% url 'borrow-book' bookinst.pk %}">Borrow</a>
+                        {% comment %} - <a href="{% url 'catalog:borrow-book' bookinst.pk %}">Borrow</a> {% endcomment %}
+
+                    {% endif %}
+                {% else %}
+                    Not Available
+                    {% if bookinst.borrower %}
+                        - Currently borrowed by {{ bookinst.borrower }}
+                    {% endif %}
+                {% endif %}
+            </li>
+        {% empty %}
+            <li>There are no book copies available.</li>
+        {% endfor %}
     </ul>
 
 {% endblock %}

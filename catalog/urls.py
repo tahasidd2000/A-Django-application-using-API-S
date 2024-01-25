@@ -4,6 +4,19 @@ from .views import borrow_book
 # extra line above
 from . import views
 
+# catalog/urls.py
+# catalog/urls.py
+# catalog/urls.py
+
+from django.urls import path
+# from .views import login_api, login_view, hello_world
+
+# urlpatterns = [
+#     path('login-api/', login_api, name='login_api'),
+#     path('login-view/', login_view, name='login_view'),
+#     path('hello/', hello_world, name='hello_world'), 
+# ]
+
 
 # urlpatterns = [
 #     path('', views.index, name='index'),
@@ -15,6 +28,27 @@ from . import views
 # ]
 
 urlpatterns = [
+    # Other URL patterns
+    path('book/<uuid:pk>/borrow/', views.borrow_book, name='borrow-book'),
+    path('login-api/', views.login_api, name='login_api'),
+    path('login-view/', views.login_view, name='login_view'),
+    path('hello/', views.hello_world, name='hello_world'), 
+    # Add other patterns as needed
+]
+
+
+from .views import BookListAPIView, BookDetailAPIView
+
+urlpatterns = [
+    path('api/books/', BookListAPIView.as_view(), name='book-list-api'),
+    path('api/books/<int:pk>/', BookDetailAPIView.as_view(), name='book-detail-api'),
+    # Add other API patterns as needed
+]
+
+
+
+
+urlpatterns += [
     path('', views.index, name='index'),
     path('books/', views.BookListView.as_view(), name='books'),
     path('book/<int:pk>', views.BookDetailView.as_view(), name='book-detail'),

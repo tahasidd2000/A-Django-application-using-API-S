@@ -1,5 +1,12 @@
 from django.shortcuts import render
 
+
+# catalog/views.py
+from django.http import HttpResponse
+
+def hello_world(request):
+    return HttpResponse("Hello, World!")
+
 # Create your views here.
 
 from .models import Book, Author, BookInstance, Genre, Language
@@ -264,6 +271,7 @@ class BookInstanceDelete(PermissionRequiredMixin, DeleteView):
 
 
 
+<<<<<<< HEAD
 # For users to use borrow books functionality
 
 # views.py
@@ -292,4 +300,113 @@ def borrow_book(request, book_id):
 
     # Handle the case where the book is not available
     return render(request, 'book_not_available.html', {'book': book})
+=======
+# catalog/views.py
+
+from django.shortcuts import get_object_or_404, render
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from .models import BookInstance
+
+# def borrow_book(request, pk):
+#     # Your logic for borrowing a book
+#     # ...
+
+#     # return HttpResponseRedirect(reverse('catalog:bookinstances'))
+
+#     return HttpResponseRedirect(reverse('borrow_book'))
+
+from .forms import BorrowBookForm  # Assuming you have a form for borrowing
+
+def borrow_book(request, pk):
+    # Get the BookInstance object
+    book_instance = get_object_or_404(BookInstance, pk=pk)
+
+    if request.method == 'POST':
+        form = BorrowBookForm(request.POST)
+
+        if form.is_valid():
+            # Your logic for processing the form and updating the book instance
+            # ...
+
+            # Redirect to a success page or another view
+            return HttpResponseRedirect(reverse('borrow_success'))
+    else:
+        form = BorrowBookForm()
+
+    return render(request, 'catalog/borrow_book.html', {'form': form, 'book_instance': book_instance})
+
+    # return render(request, 'catalog/borrow_book.html', { form,  book_instance})
+
+
+
+def bookinstance_list(request):
+    # Your logic to get a list of book instances
+    book_instances = BookInstance.objects.all()
+
+    return render(request, 'catalog/bookinstance_list.html', {'book_instances': book_instances})
+
+    # return render(request, 'catalog/bookinstance_list.html', {book_instances})
+
+
+from rest_framework import generics
+from .models import Book
+from .serializers import BookSerializer
+
+class BookListAPIView(generics.ListAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+
+class BookDetailAPIView(generics.RetrieveAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+
+# catalog/views.py
+# catalog/views.py
+
+import requests
+from django.shortcuts import render, HttpResponse  # Add the import for 'render' and 'HttpResponse'
+
+def login(request):
+    if request.method == 'POST':
+        # Handle POST request as before
+        base_url = "http://127.0.0.1:8000/"  # Update with your actual base URL
+        login_endpoint = "/login/"  # Update with your actual login endpoint
+
+        data = {
+            "username": "your_username",
+            "password": "your_password"
+        }
+
+        response = requests.post(f"{base_url}{login_endpoint}", data=data)
+
+        if response.status_code == 200:
+            access_token = response.json().get("access")
+            refresh_token = response.json().get("refresh")
+            return HttpResponse(f"Login successful! Access Token: {access_token}, Refresh Token: {refresh_token}")
+        else:
+            return HttpResponse(f"Login failed. Response: {response.text}", status=response.status_code)
+
+    else:
+        # Handle GET request (provide a login form or redirect)
+        return HttpResponse("This is a GET request. Provide a login form or redirect to another page.")
+
+def login_view(request):  # Correct the function name to match the import statement
+    if request.method == 'POST':
+        # Handle POST request
+        # Add your login logic here
+        return HttpResponse("This is a POST request. Handle login logic.")
+
+    else:
+        # Handle GET request
+        return render(request, 'catalog/login.html')  # Update with your actual template name
+
+def login_api(request):
+    if request.method == 'POST':
+        # Your login API logic for handling POST requests
+        return HttpResponse("This is the login_api view for POST requests.")
+    else:
+        # Your login API logic for handling GET requests
+        return HttpResponse("This is the login_api view for GET requests.")
+>>>>>>> main
 

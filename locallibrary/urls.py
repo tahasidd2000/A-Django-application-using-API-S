@@ -15,20 +15,33 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path,include
 
 # Use include() to add URLS from the catalog application and authentication system
-from django.urls import include
+
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-]
-
-
-urlpatterns += [
     path('catalog/', include('catalog.urls')),
+    # other patterns...
 ]
+
+
+
+
+
+# urlpatterns = [
+#     path('admin/', admin.site.urls),
+# ]
+
+
+# urlpatterns += [
+#     # path('catalog/', include('catalog.urls')),
+#     # path('book/<uuid:pk>/borrow/', views.borrow_book, name='borrow-book'),
+#     # path('catalog/', include(('catalog.urls', 'catalog'), namespace='catalog')),
+#     # path('catalog/', include('catalog.urls', namespace='catalog')),
+# ]
 
 
 # Use static() to add url mapping to serve static files during development (only)

@@ -120,9 +120,20 @@ class BookInstance(models.Model):
         """Returns the url to access a particular book instance."""
         return reverse('bookinstance-detail', args=[str(self.id)])
 
+    def is_available(self):
+        return not self.borrower
+    
     def __str__(self):
         """String for representing the Model object."""
         return f'{self.id} ({self.book.title})'
+    
+    
+
+    
+
+
+
+
 
 
 class Author(models.Model):

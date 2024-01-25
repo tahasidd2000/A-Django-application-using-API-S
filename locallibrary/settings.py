@@ -29,12 +29,14 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-&psk#na5l=p3q8
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
 # Set hosts to allow any app on Railway and the local testing URL
-ALLOWED_HOSTS = ['.railway.app','127.0.0.1']
-
+# ALLOWED_HOSTS = ['.railway.app','127.0.0.1','localhost']
+ALLOWED_HOSTS = ['*']
 # Set CSRF trusted origins to allow any app on Railway and the local testing URL
-CSRF_TRUSTED_ORIGINS = ['https://*.railway.app','https://*.127.0.0.1']
+CSRF_TRUSTED_ORIGINS = ['https://*.railway.app','https://*.127.0.0.1','http://localhost', 'https://localhost']
 
-
+base_url = "http://127.0.0.1:8000"  # This should match your Django development server
+  # Update with your actual base URL
+login_endpoint = "/login/"
 # Application definition
 
 INSTALLED_APPS = [
@@ -46,7 +48,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Add our new application
     'catalog.apps.CatalogConfig', #This object was created for us in /catalog/apps.py
+    'rest_framework',
+    'rest_framework_simplejwt',
+    
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -89,6 +100,17 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'books',
+#         'USER': 'taha',
+#         'PASSWORD': '1234',
+#         'HOST': 'localhost',  # Set to the address of your MySQL server
+#         'PORT': '3306',      # Default MySQL port
+#     }
+# }
 
 
 # Password validation

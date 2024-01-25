@@ -23,3 +23,16 @@ class RenewBookForm(forms.Form):
 
         # Remember to always return the cleaned data.
         return data
+
+
+
+class BorrowBookForm(forms.Form):
+    return_date = forms.DateField(help_text='Enter the return date (YYYY-MM-DD)')
+
+    def clean_return_date(self):
+        data = self.cleaned_data['return_date']
+
+        # Add validation logic if needed
+        # For example, you may want to check if the return date is in the future
+
+        return data
