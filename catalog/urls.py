@@ -3,11 +3,22 @@ from django.urls import path
 from . import views
 
 
+
 urlpatterns = [
     # Other URL patterns
     path('book/<uuid:pk>/borrow/', views.borrow_book, name='borrow-book'),
     # Add other patterns as needed
 ]
+
+
+from .views import BookListAPIView, BookDetailAPIView
+
+urlpatterns = [
+    path('api/books/', BookListAPIView.as_view(), name='book-list-api'),
+    path('api/books/<int:pk>/', BookDetailAPIView.as_view(), name='book-detail-api'),
+    # Add other API patterns as needed
+]
+
 
 
 

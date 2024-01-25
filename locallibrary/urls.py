@@ -23,14 +23,25 @@ from django.urls import include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-]
-
-
-urlpatterns += [
     path('catalog/', include('catalog.urls')),
-    # path('book/<uuid:pk>/borrow/', views.borrow_book, name='borrow-book'),
-    # path('catalog/', include(('catalog.urls', 'catalog'), namespace='catalog')),
+    # other patterns...
 ]
+
+
+
+
+
+# urlpatterns = [
+#     path('admin/', admin.site.urls),
+# ]
+
+
+# urlpatterns += [
+#     # path('catalog/', include('catalog.urls')),
+#     # path('book/<uuid:pk>/borrow/', views.borrow_book, name='borrow-book'),
+#     # path('catalog/', include(('catalog.urls', 'catalog'), namespace='catalog')),
+#     # path('catalog/', include('catalog.urls', namespace='catalog')),
+# ]
 
 
 # Use static() to add url mapping to serve static files during development (only)

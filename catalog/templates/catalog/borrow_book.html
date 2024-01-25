@@ -1,0 +1,28 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>Borrow Book</h1>
+
+  <form method="post" action="{% url 'borrow_book' pk=book_instance.pk %}">
+    
+  {% comment %} <form method="post" action="{% url 'borrow_book' book_instance.pk %}"> {% endcomment %}
+
+    {% csrf_token %}
+
+    <!-- Display any form errors here -->
+    {% if form.errors %}
+      <div style="color: red;">
+        {{ form.errors }}
+      </div>
+    {% endif %}
+
+    <p>Are you sure you want to borrow "{{ book_instance.book.title }}"?</p>
+
+    <!-- You can customize the form fields based on your requirements -->
+    {{ form.as_p }}
+
+    <input type="submit" value="Borrow">
+  </form>
+
+  <a href="{% url 'book_detail' pk=book_instance.book.pk %}">Cancel</a>
+{% endblock %}
