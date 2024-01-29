@@ -322,6 +322,8 @@ class BookListAPIView(generics.ListAPIView):
 class BookDetailAPIView(generics.RetrieveAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+
+
 # views.py
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -330,20 +332,28 @@ from .models import Book
 from .serializers import BookSerializer
 
 class BookListCreateView(APIView):
-    # Your existing code for listing and creating books
+    def get(self, request, *args, **kwargs):
+        books = Book.objects.all()
+        serializer = BookSerializer(books, many=True)
+        return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
-        # Your existing code for creating books
+        serializer = BookSerializer(data=request.data)
 
-        # Add code to associate language with the book
-        language_id = request.data.get('language_id')
-        if language_id:
-            language = Language.objects.get(pk=language_id)
-            book.language = language
-            book.save()
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        # ... other code ...
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk, *args, **kwargs):
+        try:
+            book = Book.objects.get(pk=pk)
+        except Book.DoesNotExist:
+            return Response({'detail': 'Book not found.'}, status=status.HTTP_404_NOT_FOUND)
 
+        book.delete()
+        return Response({'detail': 'Book deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
 
 
 
@@ -380,27 +390,35 @@ class LoginView(APIView):
 
 
 # views.py
-from rest_framework import generics, permissions
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Language
 from .serializers import LanguageSerializer
 
-class LanguageListCreateView(generics.ListCreateAPIView):
-    queryset = Language.objects.all()
-    serializer_class = LanguageSerializer
-    permission_classes = [permissions.IsAuthenticated]  # Add this line
+class LanguageListCreateView(APIView):
+    def get(self, request, *args, **kwargs):
+        languages = Language.objects.all()
+        serializer = LanguageSerializer(languages, many=True)
+        return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
-        # Extract the language name from the request data
-        language_name = request.data.get('name', '')
+        serializer = LanguageSerializer(data=request.data)
 
-        # Validate and create the new language
-        serializer = LanguageSerializer(data={'name': language_name})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, name, *args, **kwargs):
+        try:
+            language = Language.objects.get(name=name)
+            language.delete()
+            return Response({'detail': 'Language deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
+        except Language.DoesNotExist:
+            return Response({'detail': 'Language not found.'}, status=status.HTTP_404_NOT_FOUND)
+
 
 
 # views.py
@@ -409,21 +427,34 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Genre
 from .serializers import GenreSerializer
+from django.http import Http404 
 
 class GenreListCreateView(generics.ListCreateAPIView):
-    queryset = Genre.objects.all()
-    serializer_class = GenreSerializer
+    def get(self, request, *args, **kwargs):
+        genres = Genre.objects.all()
+        serializer = GenreSerializer(genres, many=True)
+        return Response(serializer.data)
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    def post(self, request, *args, **kwargs):
+        serializer = GenreSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, name, *args, **kwargs):
+        try:
+            genre = Genre.objects.get(name=name)
+            genre.delete()
+            return Response({'detail': 'Genre deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
+        except Genre.DoesNotExist:
+            raise Http404("Genre does not exist.")
 
 
 # views.py
-from rest_framework import generics
+from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Author
@@ -432,10 +463,72 @@ from .serializers import AuthorSerializer
 class AuthorListCreateView(generics.ListCreateAPIView):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-    def create(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+    def delete(self, request, first_name, *args, **kwargs):
+        try:
+            author = Author.objects.get(first_name=first_name)
+            author.delete()
+            return Response({'detail': 'Author deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
+        except Author.DoesNotExist:
+            return Response({'detail': 'Author not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
+# views.py
+from rest_framework import generics, permissions
+from .models import Author
+from .serializers import AuthorSerializer
+from rest_framework.response import Response
+from rest_framework import status
+
+class AuthorUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+    
+# views.py
+from rest_framework import generics, permissions
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Book, BorrowedBook
+from .serializers import BookSerializer
+
+class BorrowBookAPI(generics.ListAPIView):
+    serializer_class = BookSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        borrowed_books = BorrowedBook.objects.filter(borrower=user)
+        borrowed_book_ids = borrowed_books.values_list('book__id', flat=True)
+        available_books = Book.objects.exclude(id__in=borrowed_book_ids)
+        return available_books
+
+
+
+# views.py
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+
+@csrf_exempt
+def your_view(request):
+    # Your view logic here
+    return HttpResponse("CSRF protection is disabled for this view.")
+
+

@@ -6,26 +6,29 @@ from .views import LoginView
 
 from .views import GenreListCreateView
 
-from .views import AuthorListCreateView
+from .views import AuthorListCreateView,AuthorUpdateView
 
-# urlpatterns = [
-#     path('authors/', AuthorListCreateView.as_view(), name='author-list-create'),
-#     # Add other author-related URLs if needed
-# ]
 
 
 from .views import LanguageListCreateView
 
+from .views import BookListCreateView
+from .views import BorrowBookAPI
 
-from .views import BookListAPIView, BookDetailAPIView
 
 urlpatterns = [
-    path('api/books/', BookListAPIView.as_view(), name='book-list-api'),
-    path('api/books/<int:pk>/', BookDetailAPIView.as_view(), name='book-detail-api'),
+    path('api/books/', BookListCreateView.as_view(), name='book-list-create'),
+    path('api/books/<int:pk>/', BookListCreateView.as_view(), name='book-delete'),
     path('api/login/', LoginView.as_view(), name='api-login'),
     path('api/languages/', LanguageListCreateView.as_view(), name='language-list-create'),
+    path('api/languages/<str:name>/', LanguageListCreateView.as_view(), name='language-delete'),
     path('api/genres/', GenreListCreateView.as_view(), name='genre-list-create'),
-    path('api/authors/', AuthorListCreateView.as_view(), name='author-list-create'),
+    path('api/genres/<str:name>/', GenreListCreateView.as_view(), name='genre-delete'),
+    path('api/authors/', AuthorListCreateView.as_view(), name='author-view'),
+    path('api/authors/create/', AuthorListCreateView.as_view(), name='author-list-create'),
+    path('api/authors/delete/<str:first_name>/', AuthorListCreateView.as_view(), name='author-delete'),
+    path('api/authors/update/<int:pk>/', AuthorUpdateView.as_view(), name='author-update'),
+    path('api/borrow-books/', BorrowBookAPI.as_view(), name='borrow-book-list'),
     # Add other API patterns as needed
 ]
 
