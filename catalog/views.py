@@ -271,13 +271,6 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from .models import BookInstance
 
-# def borrow_book(request, pk):
-#     # Your logic for borrowing a book
-#     # ...
-
-#     # return HttpResponseRedirect(reverse('catalog:bookinstances'))
-
-#     return HttpResponseRedirect(reverse('borrow_book'))
 
 from .forms import BorrowBookForm  # Assuming you have a form for borrowing
 
@@ -294,12 +287,13 @@ def borrow_book(request, pk):
 
             # Redirect to a success page or another view
             return HttpResponseRedirect(reverse('borrow_success'))
+
     else:
         form = BorrowBookForm()
 
     return render(request, 'catalog/borrow_book.html', {'form': form, 'book_instance': book_instance})
 
-    # return render(request, 'catalog/borrow_book.html', { form,  book_instance})
+
 
 
 
@@ -309,7 +303,12 @@ def bookinstance_list(request):
 
     return render(request, 'catalog/bookinstance_list.html', {'book_instances': book_instances})
 
-    # return render(request, 'catalog/bookinstance_list.html', {book_instances})
+
+
+
+
+
+
 
 
 from rest_framework import generics
@@ -323,3 +322,120 @@ class BookListAPIView(generics.ListAPIView):
 class BookDetailAPIView(generics.RetrieveAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+# views.py
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Book
+from .serializers import BookSerializer
+
+class BookListCreateView(APIView):
+    # Your existing code for listing and creating books
+
+    def post(self, request, *args, **kwargs):
+        # Your existing code for creating books
+
+        # Add code to associate language with the book
+        language_id = request.data.get('language_id')
+        if language_id:
+            language = Language.objects.get(pk=language_id)
+            book.language = language
+            book.save()
+
+        # ... other code ...
+
+
+
+
+# views.py
+from django.contrib.auth import authenticate, login
+from django.http import JsonResponse
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import CustomUserSerializer
+
+class LoginView(APIView):
+    def post(self, request, *args, **kwargs):
+        username = request.data.get("username")
+        password = request.data.get("password")
+        
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                serializer = CustomUserSerializer(user)
+                return Response(serializer.data)
+            else:
+                return Response(
+                    {"error": "User is not active"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        else:
+            return Response(
+                {"error": "Invalid credentials"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+
+# views.py
+from rest_framework import generics, permissions
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Language
+from .serializers import LanguageSerializer
+
+class LanguageListCreateView(generics.ListCreateAPIView):
+    queryset = Language.objects.all()
+    serializer_class = LanguageSerializer
+    permission_classes = [permissions.IsAuthenticated]  # Add this line
+
+    def post(self, request, *args, **kwargs):
+        # Extract the language name from the request data
+        language_name = request.data.get('name', '')
+
+        # Validate and create the new language
+        serializer = LanguageSerializer(data={'name': language_name})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# views.py
+from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Genre
+from .serializers import GenreSerializer
+
+class GenreListCreateView(generics.ListCreateAPIView):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+# views.py
+from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Author
+from .serializers import AuthorSerializer
+
+class AuthorListCreateView(generics.ListCreateAPIView):
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

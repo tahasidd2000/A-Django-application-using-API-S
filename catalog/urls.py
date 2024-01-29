@@ -1,14 +1,20 @@
 from django.urls import path
 
+
 from . import views
+from .views import LoginView
+
+from .views import GenreListCreateView
+
+from .views import AuthorListCreateView
+
+# urlpatterns = [
+#     path('authors/', AuthorListCreateView.as_view(), name='author-list-create'),
+#     # Add other author-related URLs if needed
+# ]
 
 
-
-urlpatterns = [
-    # Other URL patterns
-    path('book/<uuid:pk>/borrow/', views.borrow_book, name='borrow-book'),
-    # Add other patterns as needed
-]
+from .views import LanguageListCreateView
 
 
 from .views import BookListAPIView, BookDetailAPIView
@@ -16,6 +22,10 @@ from .views import BookListAPIView, BookDetailAPIView
 urlpatterns = [
     path('api/books/', BookListAPIView.as_view(), name='book-list-api'),
     path('api/books/<int:pk>/', BookDetailAPIView.as_view(), name='book-detail-api'),
+    path('api/login/', LoginView.as_view(), name='api-login'),
+    path('api/languages/', LanguageListCreateView.as_view(), name='language-list-create'),
+    path('api/genres/', GenreListCreateView.as_view(), name='genre-list-create'),
+    path('api/authors/', AuthorListCreateView.as_view(), name='author-list-create'),
     # Add other API patterns as needed
 ]
 
@@ -41,6 +51,7 @@ urlpatterns += [
 # Add URLConf for librarian to renew a book.
 urlpatterns += [
     path('book/<uuid:pk>/renew/', views.renew_book_librarian, name='renew-book-librarian'),
+    path('book/<uuid:pk>/borrow/', views.borrow_book, name='borrow-book'),
 ]
 
 
@@ -92,3 +103,4 @@ urlpatterns += [
     path('bookinstance/<uuid:pk>/delete/',
          views.BookInstanceDelete.as_view(), name='bookinstance-delete'),
 ]
+

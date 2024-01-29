@@ -13,8 +13,8 @@
                 - {% if bookinst.is_available %}
                     Available for Borrowing
                     {% if user.is_authenticated and not bookinst.borrower %}
-                        - <a href="{% url 'borrow-book' bookinst.pk %}">Borrow</a>
-                        {% comment %} - <a href="{% url 'catalog:borrow-book' bookinst.pk %}">Borrow</a> {% endcomment %}
+                        {% comment %} - <a href="{% url 'borrow-book' bookinst.pk %}">Borrow</a>    {% endcomment %}
+                        + <a href="{% url 'borrow-book' pk=bookinst.pk %}">Borrow</a>
 
                     {% endif %}
                 {% else %}
