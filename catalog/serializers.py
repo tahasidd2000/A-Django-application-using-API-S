@@ -1,13 +1,7 @@
 from rest_framework import serializers
 from .models import Book
-
-class BookSerializer(serializers.ModelSerializer):
-
-    language = serializers.StringRelatedField()
-
-    class Meta:
-        model = Book
-        fields = ['id', 'title', 'author', 'summary', 'isbn', 'genre', 'language']
+from .models import Book, BorrowedBook, Borrower, Language, Genre, Author
+from .models import Book, BookInstance
 
 
 class CustomUserSerializer(serializers.Serializer):
@@ -43,21 +37,87 @@ class AuthorSerializer(serializers.ModelSerializer):
         fields = ['id', 'first_name', 'last_name', 'date_of_birth', 'date_of_death']
 
 
-from .models import Book, BorrowedBook
+
+class BookSerializer(serializers.ModelSerializer):
+    author = serializers.PrimaryKeyRelatedField(queryset=Author.objects.all())
+    # genre = serializers.PrimaryKeyRelatedField(queryset=Genre.objects.all())
+    language = serializers.PrimaryKeyRelatedField(queryset=Language.objects.all())
+
+    genre = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Book
+        fields = '__all__'
+
+    def get_genre(self, obj):
+        return [genre.name for genre in obj.genre.all()]
+
+    
+    class Meta:
+        model = Book
+        fields = ['id', 'title', 'author', 'summary', 'isbn', 'genre', 'language']
+
+class BookInstanceSerializer(serializers.ModelSerializer):
+    book = BookSerializer()
+
+    class Meta:
+        model = BookInstance
+        fields = ['id', 'book', 'imprint', 'due_back', 'borrower', 'status']
+
 
 # serializers.py
 from rest_framework import serializers
-from .models import BorrowedBook
+from .models import Borrower
 
+class BorrowerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Borrower
+        fields = '__all__'
+        
 class BorrowedBookSerializer(serializers.ModelSerializer):
+    book = BookSerializer(read_only=True)
+
     class Meta:
         model = BorrowedBook
         fields = ['id', 'book', 'borrower', 'borrowed_date']
 
-    # Optionally, you can include additional fields or customize serializer behavior.
-    # For example, you might want to display the book details along with the borrowed book.
+from rest_framework import serializers
+from django.contrib.auth.models import User
+from .models import BookInstance
 
-    # Add a nested serializer for the Book model
-    book = BookSerializer(read_only=True)
+class BorrowBookSerializer(serializers.Serializer):
+    book_id = serializers.UUIDField()
+    user_name = serializers.CharField(max_length=100)
 
-    # Include additional fields or customize behavior as needed
+    def validate_book_id(self, value):
+        try:
+            book_instance = BookInstance.objects.get(id=value)
+        except BookInstance.DoesNotExist:
+            raise serializers.ValidationError("Book with this ID does not exist.")
+        
+        return value
+
+    def create(self, validated_data):
+        book_id = validated_data['book_id']
+        user_name = validated_data['user_name']
+
+        # Check if the user already exists
+        user, created = User.objects.get_or_create(username=user_name)
+
+       
+        some_result = f"Book {book_id}"
+        return some_result
+
+
+
+from django.contrib.auth.models import User
+from rest_framework import serializers
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'password']
+        extra_kwargs = {'password': {'write_only': True}}
+
+
+

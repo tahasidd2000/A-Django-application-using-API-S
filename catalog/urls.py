@@ -4,31 +4,59 @@ from django.urls import path
 from . import views
 from .views import LoginView
 
-from .views import GenreListCreateView
 
 from .views import AuthorListCreateView,AuthorUpdateView, AuthorDetailView
 
 
+# from .views import BorrowBookAPI
+from .views import BorrowBookView
 
-from .views import LanguageListCreateView
+from .views import GenreListView, GenreUpdateView, GenreDeleteView, GenreDetailView
 
-from .views import BookListCreateView
-from .views import BorrowBookAPI
+
+# urls.py
+from .views import (
+    BookListView, BookUpdateView, BookDeleteView, BookDetailView,
+    BorrowerListView, BorrowerDetailView
+)
+
+
+
+from .views import UserCreateView
+
+# urlpatterns = [
+#     path('api/users/create/', UserCreateView.as_view(), name='user-create'),
+#     # Other URL patterns for your application
+# ]
+
+
+from .views import LanguageListView, LanguageCreateView, LanguageUpdateView, LanguageDeleteView
 
 
 urlpatterns = [
-    path('api/books/', BookListCreateView.as_view(), name='book-list-create'),
-    path('api/books/<int:pk>/', BookListCreateView.as_view(), name='book-delete'),
+    path('api/books/', BookListView.as_view(), name='book-list'),
+    path('api/books/create/', BookListView.as_view(), name='book-create'),
+    path('api/books/update/<int:pk>/', BookUpdateView.as_view(), name='book-update'),
+    path('api/books/delete/<int:pk>/', BookDeleteView.as_view(), name='book-delete'),
+    path('api/books/view/<int:pk>/', BookDetailView.as_view(), name='book-view'),
+    path('api/borrowers/', BorrowerListView.as_view(), name='borrower-list'),
+    path('api/borrowers/<int:pk>/', BorrowerDetailView.as_view(), name='borrower-detail'),
     path('api/login/', LoginView.as_view(), name='api-login'),
-    path('api/languages/', LanguageListCreateView.as_view(), name='language-list-create'),
-    # path('api/languages/<str:name>/', LanguageListCreateView.as_view(), name='language-delete'),
-    path('api/genres/', GenreListCreateView.as_view(), name='genre-list-create'),
-    path('api/genres/<str:name>/', GenreListCreateView.as_view(), name='genre-delete'),
+    path('api/languages/', LanguageListView.as_view(), name='language-list'),
+    path('api/languages/create/', LanguageCreateView.as_view(), name='language-create'),
+    path('api/languages/update/<int:pk>/', LanguageUpdateView.as_view(), name='language-update'),
+    path('api/languages/delete/<int:pk>/', LanguageDeleteView.as_view(), name='language-delete'),
+    path('api/genres/', GenreListView.as_view(), name='genre-list'),
+    path('api/genres/create/', GenreListView.as_view(), name='genre-create'),
+    path('api/genres/update/<int:pk>/', GenreUpdateView.as_view(), name='genre-update'),
+    path('api/genres/delete/<int:pk>/', GenreDeleteView.as_view(), name='genre-delete'),
+    path('api/genres/view/<int:pk>/', GenreDetailView.as_view(), name='genre-view'),
     path('api/authors/', AuthorListCreateView.as_view(), name='author-view'),
     path('api/authors/create/', AuthorListCreateView.as_view(), name='author-list-create'),
     path('api/authors/delete/<int:pk>/', AuthorDetailView.as_view(), name='author-detail'),
     path('api/authors/update/<int:pk>/', AuthorUpdateView.as_view(), name='author-update'),
-    path('api/borrow-books/', BorrowBookAPI.as_view(), name='borrow-book-list'),
+    path('api/borrow-books/', BorrowBookView.as_view(), name='borrow-books'),
+    path('api/users/create/', UserCreateView.as_view(), name='user-create'),
     # Add other API patterns as needed
 ]
 
