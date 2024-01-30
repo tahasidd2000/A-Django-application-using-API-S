@@ -387,9 +387,7 @@ class LoginView(APIView):
                 {"error": "Invalid credentials"},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-
-
-# views.py
+ # views.py
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -403,23 +401,39 @@ class LanguageListCreateView(APIView):
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
-        serializer = LanguageSerializer(data=request.data)
+        operation = request.data.get('operation')
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if operation == 'create':
+            serializer = LanguageSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        elif operation == 'update':
+            language_id = request.data.get('id')
+            try:
+                language = Language.objects.get(pk=language_id)
+            except Language.DoesNotExist:
+                return Response({'detail': 'Language not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-    def delete(self, request, name, *args, **kwargs):
-        try:
-            language = Language.objects.get(name=name)
-            language.delete()
-            return Response({'detail': 'Language deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
-        except Language.DoesNotExist:
-            return Response({'detail': 'Language not found.'}, status=status.HTTP_404_NOT_FOUND)
+            serializer = LanguageSerializer(language, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        elif operation == 'delete':
+            language_id = request.data.get('id')
+            try:
+                language = Language.objects.get(pk=language_id)
+                language.delete()
+                return Response({'detail': 'Language deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
+            except Language.DoesNotExist:
+                return Response({'detail': 'Language not found.'}, status=status.HTTP_404_NOT_FOUND)
 
+        else:
+            return Response({'detail': 'Invalid operation.'}, status=status.HTTP_400_BAD_REQUEST)
 
 # views.py
 from rest_framework import generics
@@ -474,13 +488,17 @@ class AuthorListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save()
 
-    def delete(self, request, first_name, *args, **kwargs):
-        try:
-            author = Author.objects.get(first_name=first_name)
-            author.delete()
-            return Response({'detail': 'Author deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
-        except Author.DoesNotExist:
-            return Response({'detail': 'Author not found.'}, status=status.HTTP_404_NOT_FOUND)
+    
+class AuthorDetailView(generics.RetrieveDestroyAPIView):
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        # Handle post request for deletion here
+        instance = self.get_object()
+        instance.delete()
+        return Response({'detail': 'Author deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
         
 # views.py
 from rest_framework import generics, permissions
@@ -494,7 +512,7 @@ class AuthorUpdateView(generics.RetrieveUpdateAPIView):
     serializer_class = AuthorSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def patch(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
